@@ -1,5 +1,8 @@
 server:
   port: 8090
 
-
-
+spring:
+  rabbitmq:
+    host: 192.168.123.60
+    username: admin
+    password: 123456
