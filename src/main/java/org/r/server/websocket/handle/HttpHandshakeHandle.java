@@ -2,14 +2,13 @@ package org.r.server.websocket.handle;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
+
+import java.util.Map;
 
 /**
  * date 2020/4/19 18:06
@@ -19,6 +18,7 @@ import io.netty.util.CharsetUtil;
 public class HttpHandshakeHandle extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private final String path;
+
 
     public HttpHandshakeHandle(String path) {
         this.path = path;
@@ -36,7 +36,7 @@ public class HttpHandshakeHandle extends SimpleChannelInboundHandler<FullHttpReq
         String host = req.headers().get(HttpHeaderNames.HOST);
         String uri = req.uri();
         /*判断是否要处理的路径*/
-        if(!uri.startsWith(path)){
+        if (!uri.startsWith(path)) {
             return;
         }
         // Handle a bad request.
@@ -50,15 +50,21 @@ public class HttpHandshakeHandle extends SimpleChannelInboundHandler<FullHttpReq
             return;
         }
         // Handshake
-        WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory("ws://"+host+path, null, true, 5 * 1024 * 1024);
+        WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory("ws://" + host + path, null, true, 5 * 1024 * 1024);
         WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(req);
         if (handshaker == null) {
             WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
         } else {
             handshaker.handshake(ctx.channel(), req);
         }
+        afterHandShake(req,ctx.channel());
+    }
+
+    protected void afterHandShake(FullHttpRequest req, Channel channel) {
 
     }
+
+
     private void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
         if (res.status().code() != HttpResponseStatus.OK.code()) {
             ByteBuf buf = Unpooled.copiedBuffer(res.status().toString(), CharsetUtil.UTF_8);

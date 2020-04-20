@@ -18,6 +18,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
  *
  * @author casper
  */
+@Deprecated
 public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
     private static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     private static final String WEBSOCKET_PATH = "/h264";
