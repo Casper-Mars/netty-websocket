@@ -1,6 +1,7 @@
 package org.r.server.websocket.service.impl;
 
 import org.r.server.websocket.service.MsgService;
+import org.r.server.websocket.utils.Constants;
 import org.springframework.amqp.core.Exchange;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
@@ -29,8 +30,9 @@ public class MsgServiceImpl implements MsgService {
      */
     @Override
     public void sendMsg(Exchange exchange, String routingKey, byte[] bytes) {
-
-        Message msg = new Message(bytes, new MessageProperties());
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setHeader(Constants.VIDEO_DATA_MSG_HEADER,new Object());
+        Message msg = new Message(bytes, messageProperties);
         rabbitTemplate.send(exchange.getName(), routingKey, msg);
     }
 

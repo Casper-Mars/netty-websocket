@@ -1,4 +1,4 @@
-package org.r.server.websocket.dto;
+package org.r.server.websocket.pojo.dto;
 
 /**
  * date 20-4-20 下午4:15
@@ -20,13 +20,22 @@ public class VideoDataDto {
     /**
      * 数据
      */
-    private String data;
+    private byte[] data;
 
     /**
      * 是否关键帧
      */
     private int bIsKey;
 
+    private long dataLen;
+
+    public long getDataLen() {
+        return dataLen;
+    }
+
+    public void setDataLen(long dataLen) {
+        this.dataLen = dataLen;
+    }
 
     public long getHandle() {
         return handle;
@@ -44,11 +53,11 @@ public class VideoDataDto {
         this.type = type;
     }
 
-    public String getData() {
+    public byte[] getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(byte[] data) {
         this.data = data;
     }
 

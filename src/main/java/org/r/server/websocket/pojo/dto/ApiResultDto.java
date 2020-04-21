@@ -1,4 +1,4 @@
-package org.r.server.websocket.dto;
+package org.r.server.websocket.pojo.dto;
 
 
 /**

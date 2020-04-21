@@ -2,7 +2,7 @@ package org.r.server.websocket.service.impl;
 
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
-import org.r.server.websocket.dto.ApiResultDto;
+import org.r.server.websocket.pojo.dto.ApiResultDto;
 import org.r.server.websocket.service.CameraManagementService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
