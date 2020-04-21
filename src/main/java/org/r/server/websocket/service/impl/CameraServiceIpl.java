@@ -1,0 +1,68 @@
+package org.r.server.websocket.service.impl;
+
+import org.r.server.websocket.pojo.bo.CameraInfoBo;
+import org.r.server.websocket.pool.TopicExchangePool;
+import org.r.server.websocket.service.CameraManagementService;
+import org.r.server.websocket.service.CameraService;
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * date 20-4-21 上午10:30
+ *
+ * @author casper
+ **/
+@Service
+public class CameraServiceIpl implements CameraService {
+
+
+    @Autowired
+    private CameraManagementService cameraManagementService;
+
+
+    /**
+     * 根据id查询摄像机信息
+     *
+     * @param id 摄像机id
+     * @return 摄像机信息
+     */
+    @Override
+    public CameraInfoBo getCameraInfoById(Long id) {
+        throw new RuntimeException("摄像机不存在");
+    }
+
+    /**
+     * 开启摄像机实时视频流
+     *
+     * @param id 摄像机id
+     */
+    @Override
+    public void registryCameraStream(Long id, TopicExchange exchange) {
+        registryCameraStream(getCameraInfoById(id), exchange);
+    }
+
+    /**
+     * 注册摄像机
+     *
+     * @param cameraInfoBo 摄像机信息
+     */
+    @Override
+    public void registryCameraStream(CameraInfoBo cameraInfoBo, TopicExchange exchange) {
+
+        /*
+         * http://localhost:18080/live/start?
+         * username=admin&
+         * password=123456&
+         * ip=192.168.20.100&
+         * port=554&
+         * lUserID=19281952
+         * */
+        /*开启实时视频流*/
+        long l = cameraManagementService.openLiveStream(cameraInfoBo.getIp(), cameraInfoBo.getUsername(), cameraInfoBo.getPassword(), cameraInfoBo.getHandle());
+        if (l == -1) {
+            throw new RuntimeException("can not open live stream of camera:" + cameraInfoBo.getIp());
+        }
+        TopicExchangePool.getInstance().putHandle(l, exchange);
+    }
+}

@@ -6,3 +6,7 @@ spring:
     host: 192.168.123.60
     username: admin
     password: 123456
+
+camera-manager:
+  ip: 192.168.123.60
+  port: 18080
