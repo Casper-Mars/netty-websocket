@@ -26,13 +26,11 @@ public class VideoDataConverter extends SimpleMessageConverter {
         byte[] buf = message.getBody();
         VideoDataDto videoDataDto = new VideoDataDto();
         /*获取前8个字节组成long型的视频流句柄*/
-        long handle = ByteUtil.byteToLong(buf, 0,8);
+        long handle = ByteUtil.byteToLong(buf, 0);
         videoDataDto.setHandle(handle);
-        long type = ByteUtil.byteToLong(buf, 9, 1);
-        videoDataDto.setType((int) type);
-        long isKey = ByteUtil.byteToLong(buf, 10, 1);
-        videoDataDto.setbIsKey((int) isKey);
-        long dataLen = ByteUtil.byteToLong(buf, 11, 8);
+        videoDataDto.setType(buf[9]);
+        videoDataDto.setbIsKey(buf[10]);
+        long dataLen = ByteUtil.byteToLong(buf, 11);
         videoDataDto.setDataLen(dataLen);
         byte[] data = new byte[(int) dataLen];
         System.arraycopy(buf,19,data,0, (int) dataLen);

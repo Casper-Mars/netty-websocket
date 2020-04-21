@@ -15,7 +15,7 @@ public class VideoDataDto {
     /**
      * 数据类型
      */
-    private int type;
+    private byte type;
 
     /**
      * 数据
@@ -25,7 +25,7 @@ public class VideoDataDto {
     /**
      * 是否关键帧
      */
-    private int bIsKey;
+    private byte bIsKey;
 
     private long dataLen;
 
@@ -45,11 +45,11 @@ public class VideoDataDto {
         this.handle = handle;
     }
 
-    public int getType() {
+    public byte getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(byte type) {
         this.type = type;
     }
 
@@ -61,11 +61,11 @@ public class VideoDataDto {
         this.data = data;
     }
 
-    public int getbIsKey() {
+    public byte getbIsKey() {
         return bIsKey;
     }
 
-    public void setbIsKey(int bIsKey) {
+    public void setbIsKey(byte bIsKey) {
         this.bIsKey = bIsKey;
     }
 }
