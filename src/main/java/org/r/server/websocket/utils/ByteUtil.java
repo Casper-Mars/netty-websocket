@@ -12,19 +12,55 @@ public class ByteUtil {
      *
      * @param buf   字节数组
      * @param begin 开始下标
-     * @param len   结束下标
      * @return
      */
-    public static long byteToLong(byte[] buf, int begin, int len) {
+    public static long byteToLong(byte[] buf, int begin) {
+        return byteToLong(buf, begin, 8);
+    }
 
-        long lUserId = 0;
-        /*移位接收long数据,最后一个字节对应long的最高8位，以此类推，第一个字节对应long的低8位（大尾端）*/
+
+    /**
+     * 将begin开始的4个字节转化为int数值
+     *
+     * @param buf   字节数组
+     * @param begin 开始下标
+     * @return
+     */
+    public static int byteToInt(byte[] buf, int begin) {
+        return (int) byteToLong(buf, begin, 4);
+    }
+
+    /**
+     * 将begin开始的2个字节转化为int数值
+     *
+     * @param buf   字节数组
+     * @param begin 开始下标
+     * @return
+     */
+    public static short byteToShort(byte[] buf, int begin) {
+        return (short) byteToLong(buf, begin, 2);
+    }
+
+
+    /**
+     * 将begin开始的len个字节转化为long数值
+     *
+     * @param buf   字节数组
+     * @param begin 开始下标
+     * @param len   长度
+     * @return
+     */
+    private static long byteToLong(byte[] buf, int begin, int len) {
+        if (len > 8) {
+            throw new RuntimeException("len can not great than 8(long length)");
+        }
+        int target = 0;
         int end = begin + len;
         for (int i = end - 1; i >= begin; i--) {
-            lUserId = lUserId << 8;
-            lUserId = lUserId | (buf[i] & 0xff);
+            target = target << 8;
+            target = target | (buf[i] & 0xff);
         }
-        return lUserId;
+        return target;
     }
 
 
