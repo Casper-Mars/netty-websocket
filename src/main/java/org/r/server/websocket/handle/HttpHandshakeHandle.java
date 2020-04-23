@@ -15,6 +15,7 @@ import java.util.Map;
  *
  * @author casper
  */
+@Deprecated
 public class HttpHandshakeHandle extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private final String path;

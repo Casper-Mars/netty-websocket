@@ -10,3 +10,4 @@ spring:
 camera-manager:
   ip: 192.168.123.60
   port: 18080
+  dispatchStrategy: 1

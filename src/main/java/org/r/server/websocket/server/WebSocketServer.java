@@ -15,6 +15,7 @@ import org.r.server.websocket.handle.CameraRegistryHandle;
 import org.r.server.websocket.handle.HttpHandshakeHandle;
 import org.r.server.websocket.handle.WebSocketHandle;
 import org.r.server.websocket.handle.WebSocketServerHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -57,11 +58,11 @@ public class WebSocketServer {
                         pipeline.addLast("http-chunked", new ChunkedWriteHandler());
                         //netty是基于分段请求的，HttpObjectAggregator的作用是将请求分段再聚合,参数是聚合字节的最大长度
                         pipeline.addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 1024));
-                        pipeline.addLast(new CameraRegistryHandle("/ipc"));
+//                        pipeline.addLast(cameraRegistryHandle);
                         //这个是websocket的handler，是netty提供的，也可以自定义，建议就用默认的
 //                        pipeline.addLast(new WebSocketServerProtocolHandler("/h264", null, true, 65535));
                         //自定义的handler，处理服务端传来的消息
-                        pipeline.addLast(new WebSocketHandle());
+                        pipeline.addLast(new CameraRegistryHandle());
                     }
                 });
         try {

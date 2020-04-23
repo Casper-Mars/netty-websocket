@@ -7,48 +7,93 @@ import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.r.server.websocket.pojo.dto.VideoDataDto;
+import org.r.server.websocket.service.QueueService;
 import org.r.server.websocket.utils.ByteUtil;
-import org.springframework.stereotype.Component;
+import org.r.server.websocket.utils.SpringUtil;
 
 /**
  * date 20-4-21 上午9:41
  *
  * @author casper
  **/
-public class VideoDataDispatchListener {
+public class VideoDataDispatchListener implements MqListener<byte[]> {
 
 
     private Channel channel;
+    private String queueName;
 
-
-    public VideoDataDispatchListener(Channel channel) {
+    public VideoDataDispatchListener(Channel channel, String queueName) {
         this.channel = channel;
+        this.queueName = queueName;
     }
 
-    public void run(VideoDataDto videoDataDto) {
+    public void run(byte[] data) {
 
+        /*如果通道被关闭了，意味着前端的websocket已经关闭，则移除队列和对应的监听*/
+        if (!channel.isOpen()) {
+            shutdown();
+            return;
+        }
+        /*转化出视频帧数据对象*/
+        VideoDataDto videoDataDto = convertData(data);
+        if (videoDataDto == null) {
+            return;
+        }
         /*
          * 判断数据类型
          * 如果是2（视频大小信息）则推送字符串数据
          * 如果是0（视频帧数据）先进行后16字节的处理，再返回字节数据
          * */
-        WebSocketFrame result;
-        if (videoDataDto.getType() == 2) {
-        }
+        WebSocketFrame result = null;
         switch (videoDataDto.getType()) {
             case 2:
-                result = new TextWebSocketFrame(new String(videoDataDto.getData()));
+//                result = new TextWebSocketFrame(new String(videoDataDto.getData()));
                 break;
             case 0:
                 ByteBuf byteBuf = Unpooled.directBuffer();
                 byteBuf.writeBytes(processBuf(videoDataDto.getData()));
                 result = new BinaryWebSocketFrame(byteBuf);
                 break;
-            default:
-                result = new TextWebSocketFrame("");
         }
-        channel.writeAndFlush(result);
+        if (result != null) {
+            channel.writeAndFlush(result);
+        }
     }
+
+    /**
+     * 获取监听的队列名称
+     *
+     * @return
+     */
+    @Override
+    public String getQueueName() {
+        return queueName;
+    }
+
+    private VideoDataDto convertData(byte[] buf) {
+        VideoDataDto videoDataDto = new VideoDataDto();
+        int size = 0;
+        /*获取前8个字节组成long型的视频流句柄*/
+        long handle = ByteUtil.byteToLong(buf, 0);
+        size += 8;
+        videoDataDto.setHandle(handle);
+        videoDataDto.setType(buf[8]);
+        size += 1;
+        videoDataDto.setbIsKey(buf[9]);
+        size += 1;
+        long dataLen = ByteUtil.byteToLong(buf, 10);
+        size += 8;
+        videoDataDto.setDataLen(dataLen);
+        if ((size + dataLen) != buf.length) {
+            System.out.println("buf error! missing some byte!!!");
+            return null;
+        }
+        byte[] data = new byte[(int) dataLen];
+        System.arraycopy(buf, 18, data, 0, (int) dataLen);
+        videoDataDto.setData(data);
+        return videoDataDto;
+    }
+
 
     /**
      * 判断帧数据的最后16个字节的情况
@@ -81,6 +126,13 @@ public class VideoDataDispatchListener {
             return result;
         }
         return buf;
+    }
+
+
+    private void shutdown() {
+        QueueService queueService = SpringUtil.getBean("queueService");
+        queueService.removeQueueAndListener(getQueueName());
+
     }
 
 

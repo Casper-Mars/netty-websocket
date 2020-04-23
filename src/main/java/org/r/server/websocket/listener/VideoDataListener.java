@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  **/
 @Component
 @RabbitListener(queues = {"video"})
-public class VideoDataListener {
+public class VideoDataListener implements MqListener<byte[]>{
 
     @Autowired
     private MsgService msgService;
@@ -26,13 +26,23 @@ public class VideoDataListener {
 
     @RabbitHandler
     public void run(byte[] buf) {
-        System.out.println("=================get a video call back======================");
-        long lUserId = ByteUtil.byteToLong(buf,0,8);
-        System.out.println(lUserId);
+//        System.out.println("=================get a video call back======================");
+        long lUserId = ByteUtil.byteToLong(buf,0);
+//        System.out.println(lUserId);
         TopicExchange exchange = topicExchangePool.getByHandle(lUserId);
         if (exchange != null) {
             msgService.sendMsg(exchange, "*", buf);
         }
+    }
+
+    /**
+     * 获取监听的队列名称
+     *
+     * @return
+     */
+    @Override
+    public String getQueueName() {
+        return "video";
     }
 
 }

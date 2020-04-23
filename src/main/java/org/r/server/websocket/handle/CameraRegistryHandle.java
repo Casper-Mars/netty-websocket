@@ -1,26 +1,16 @@
 package org.r.server.websocket.handle;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.IdUtil;
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.impl.AMQImpl;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.FullHttpRequest;
 import org.r.server.websocket.listener.VideoDataDispatchListener;
 import org.r.server.websocket.pojo.bo.CameraInfoBo;
-import org.r.server.websocket.pool.RoutingKeyPool;
 import org.r.server.websocket.pool.TopicExchangePool;
 import org.r.server.websocket.service.CameraService;
+import org.r.server.websocket.service.QueueService;
 import org.r.server.websocket.utils.SpringUtil;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
-import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,29 +21,44 @@ import java.util.Map;
  *
  * @author casper
  */
-public class CameraRegistryHandle extends HttpHandshakeHandle {
+public class CameraRegistryHandle extends WebSocketHandle {
+
+    private CameraService cameraService;
+    private RabbitAdmin rabbitAdmin;
+    private TopicExchangePool topicExchangePool;
+    private QueueService queueService;
 
 
-    public CameraRegistryHandle(String path) {
-        super(path);
+    public CameraRegistryHandle() {
+        super("/ipc");
+        cameraService = SpringUtil.getBean("cameraService");
+        rabbitAdmin = SpringUtil.getBean("rabbitAdmin");
+        topicExchangePool = SpringUtil.getBean("topicExchangePool");
+        queueService = SpringUtil.getBean("queueService");
     }
 
 
+    /**
+     * @param req
+     * @param channel
+     */
     @Override
     protected void afterHandShake(FullHttpRequest req, Channel channel) {
+        /*uri:/ipc?id=1&panelId=1231312*/
         /*获取查询参数*/
-//        Map<String, String> params = getParams(req.uri());
-//        if (CollectionUtils.isEmpty(params)) {
-//            return;
-//        }
-//        CameraInfoBo cameraInfoBo = BeanUtil.fillBeanWithMap(params, new CameraInfoBo(), true);
-//        /*获取exchange*/
-//        TopicExchange exchange = getExchange(cameraInfoBo.getId());
-//        /*创建新的queue并绑定routingKey*/
-//        String queueName = params.get("panelId");
-//        buildQueue(queueName, exchange);
-//        /*注册新的queue监听器*/
-//        setListener(queueName, channel);
+        Map<String, String> params = getParams(req.uri());
+        if (CollectionUtils.isEmpty(params)) {
+            return;
+        }
+        CameraInfoBo cameraInfoBo = cameraService.getCameraInfoById(Long.valueOf(params.get("id")));
+        if (cameraInfoBo == null) {
+            return;
+        }
+        /*获取exchange*/
+        TopicExchange exchange = getExchange(cameraInfoBo);
+        /*创建新的queue并绑定routingKey,然后添加监听器*/
+        String queueName = params.get("panelId");
+        queueService.bindNewQueueAndListen(queueName,exchange,new VideoDataDispatchListener(channel,queueName));
     }
 
 
@@ -85,39 +90,22 @@ public class CameraRegistryHandle extends HttpHandshakeHandle {
     }
 
 
-    private TopicExchange getExchange(Long id) {
-        TopicExchange topicExchange = TopicExchangePool.getInstance().getById(id);
+    private TopicExchange getExchange(CameraInfoBo cameraInfoBo) {
+        Long id = cameraInfoBo.getId();
+        TopicExchange topicExchange = topicExchangePool.getById(id);
         /*如果当前的摄像机没有建立exchange，则先建立*/
         if (topicExchange == null) {
             /*建立exchange*/
-            RabbitAdmin rabbitAdmin = SpringUtil.getBean("rabbitAdmin");
             topicExchange = new TopicExchange("h264-camera-" + id, true, false);
             /*重复的exchange只会创建一次*/
             rabbitAdmin.declareExchange(topicExchange);
-            TopicExchangePool.getInstance().putId(id, topicExchange);
-            CameraService cameraService = SpringUtil.getBean("cameraService");
-            cameraService.registryCameraStream(id, topicExchange);
+            topicExchangePool.putId(id, topicExchange);
+            cameraService.registryCameraStream(cameraInfoBo, topicExchange);
         }
         return topicExchange;
     }
 
-    private void buildQueue(String panelMachineId, TopicExchange exchange) {
 
-        Queue queue = new Queue(panelMachineId, true, false, false);
-        RabbitAdmin rabbitAdmin = SpringUtil.getBean("rabbitAdmin");
-        rabbitAdmin.declareQueue(queue);
-        Binding binding = BindingBuilder.bind(queue).to(exchange).with("*");
-        /*重复的queue只会创建一次*/
-        rabbitAdmin.declareBinding(binding);
-    }
-
-    private void setListener(String queueName, Channel channel) {
-        MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(new VideoDataDispatchListener(channel));
-        messageListenerAdapter.addQueueOrTagToMethodName(queueName, "run");
-        SimpleMessageListenerContainer simpleMessageListenerContainer = SpringUtil.getBean("simpleMessageListenerContainer");
-        simpleMessageListenerContainer.addQueueNames(queueName);
-        simpleMessageListenerContainer.setMessageListener(messageListenerAdapter);
-    }
 
 
 }

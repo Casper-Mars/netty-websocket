@@ -18,15 +18,6 @@ public class TopicExchangePool {
 
     private final ConcurrentMap<Long, TopicExchange> exchangeHandleCache = new ConcurrentHashMap<>();
 
-    private static TopicExchangePool topicExchangePool = new TopicExchangePool();
-
-    private TopicExchangePool() {
-
-    }
-
-    public static TopicExchangePool getInstance() {
-        return topicExchangePool;
-    }
 
 
     public void putId(Long id, TopicExchange exchange) {

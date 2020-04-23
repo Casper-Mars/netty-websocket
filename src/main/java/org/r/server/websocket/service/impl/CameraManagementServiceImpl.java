@@ -44,16 +44,27 @@ public class CameraManagementServiceImpl implements CameraManagementService {
         }
         sb.append("?");
         params.forEach((k, v) -> {
-            sb.append(k).append("=").append(v);
+            sb.append(k).append("=").append(v).append("&");
         });
-        return sb.toString();
+        String result = sb.toString();
+        if (result.endsWith("&")) {
+            result = result.substring(0, result.length() - 1);
+        }
+        return result;
     }
 
     private ApiResultDto doGet(String uri, Map<String, String> params) {
-        String s = buildGetRequestUrl("/live/stop", params);
+        String s = buildGetRequestUrl(uri, params);
+
         String s1 = HttpUtil.get(s);
+
         return JSONObject.parseObject(s1, ApiResultDto.class);
     }
+
+
+
+
+
 
 
     @Override
@@ -67,7 +78,7 @@ public class CameraManagementServiceImpl implements CameraManagementService {
         params.put("port", String.valueOf(554));
         ApiResultDto apiResultDto = doGet("/live/start", params);
         if ("200".equals(apiResultDto.getCode())) {
-            return Long.valueOf(apiResultDto.getMsg());
+            return Long.valueOf(apiResultDto.getData());
         }
         return -1;
     }

@@ -13,12 +13,14 @@ import org.springframework.stereotype.Service;
  *
  * @author casper
  **/
-@Service
+@Service("cameraService")
 public class CameraServiceIpl implements CameraService {
 
 
     @Autowired
     private CameraManagementService cameraManagementService;
+    @Autowired
+    private TopicExchangePool topicExchangePool;
 
 
     /**
@@ -29,7 +31,15 @@ public class CameraServiceIpl implements CameraService {
      */
     @Override
     public CameraInfoBo getCameraInfoById(Long id) {
-        throw new RuntimeException("摄像机不存在");
+        CameraInfoBo test = new CameraInfoBo();
+        test.setId(1L);
+        test.setHandle(14915104L);
+        test.setIp("192.168.20.100");
+        test.setUsername("admin");
+        test.setPassword("123456");
+        test.setStatue(1);
+        return test;
+//        throw new RuntimeException("摄像机不存在");
     }
 
     /**
@@ -61,8 +71,8 @@ public class CameraServiceIpl implements CameraService {
         /*开启实时视频流*/
         long l = cameraManagementService.openLiveStream(cameraInfoBo.getIp(), cameraInfoBo.getUsername(), cameraInfoBo.getPassword(), cameraInfoBo.getHandle());
         if (l == -1) {
-            throw new RuntimeException("can not open live stream of camera:" + cameraInfoBo.getIp());
+            throw new RuntimeException("can not open live stream of camera:" + cameraInfoBo.getIp()+",login first");
         }
-        TopicExchangePool.getInstance().putHandle(l, exchange);
+        topicExchangePool.putHandle(l, exchange);
     }
 }
