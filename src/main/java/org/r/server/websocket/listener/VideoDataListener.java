@@ -18,10 +18,13 @@ import org.springframework.stereotype.Component;
 @RabbitListener(queues = {"video"})
 public class VideoDataListener implements MqListener<byte[]>{
 
-    @Autowired
-    private MsgService msgService;
-    @Autowired
-    private TopicExchangePool topicExchangePool;
+    private final MsgService msgService;
+    private final TopicExchangePool topicExchangePool;
+
+    public VideoDataListener(MsgService msgService, TopicExchangePool topicExchangePool) {
+        this.msgService = msgService;
+        this.topicExchangePool = topicExchangePool;
+    }
 
 
     @RabbitHandler

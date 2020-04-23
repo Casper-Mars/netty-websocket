@@ -70,6 +70,7 @@ public class QueueServiceImpl implements QueueService {
      */
     @Override
     public void removeQueueAndListener(String queueName) {
+        System.out.println("队列：" + queueName + " 退出监听");
         if (dispatchStrategy == 1) {
             dynamicQueuePool.remove(queueName);
         }

@@ -1,6 +1,5 @@
 package org.r.server.websocket.pool;
 
-import io.netty.channel.Channel;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +29,7 @@ public class DynamicQueuePool {
 
     public void remove(String queueName) {
         Thread thread = queueThreadPool.get(queueName);
-        if (thread != null) {
+        if (thread != null && thread.isAlive()) {
             thread.interrupt();
         }
     }
