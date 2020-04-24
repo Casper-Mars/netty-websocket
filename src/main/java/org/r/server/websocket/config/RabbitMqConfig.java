@@ -1,13 +1,10 @@
 package org.r.server.websocket.config;
 
-import org.r.server.websocket.converter.VideoDataConverter;
-import org.r.server.websocket.listener.VideoDataDispatchListener;
 import org.r.server.websocket.listener.VideoDataListener;
 import org.r.server.websocket.pool.TopicExchangePool;
 import org.r.server.websocket.service.MsgService;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,19 +33,11 @@ public class RabbitMqConfig {
         return new RabbitAdmin(connectionFactory);
     }
 
-//    @Bean("videoQueueListener")
-//    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-//        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-////        rabbitTemplate.setMessageConverter(new VideoDataConverter());
-//        return rabbitTemplate;
-//    }
-
     @Bean("videoQueueListener")
     public SimpleMessageListenerContainer simpleMessageListenerContainer(ConnectionFactory connectionFactory) {
         MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(new VideoDataListener(msgService, topicExchangePool));
         String queueName = "video";
         messageListenerAdapter.addQueueOrTagToMethodName(queueName, "run");
-
         SimpleMessageListenerContainer simpleMessageListenerContainer = new SimpleMessageListenerContainer(connectionFactory);
         simpleMessageListenerContainer.setMaxConcurrentConsumers(1);
         simpleMessageListenerContainer.setConcurrentConsumers(1);

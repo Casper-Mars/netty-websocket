@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  *
  * @author casper
  **/
-@Component
+//@Component
 @RabbitListener(queues = {"video"})
 public class VideoDataListener implements MqListener<byte[]>{
 

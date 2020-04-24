@@ -3,8 +3,8 @@ server:
 
 spring:
   rabbitmq:
-    host: 114.55.253.170
-    username: casper
+    host: 192.168.123.60
+    username: admin
     password: 123456
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
