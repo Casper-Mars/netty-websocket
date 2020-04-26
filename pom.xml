@@ -17,6 +17,8 @@
     <properties>
         <netty.version>4.1.28.Final</netty.version>
         <java.version>1.8</java.version>
+        <jdom2.version>2.0.6</jdom2.version>
+        <skipTests>true</skipTests>
     </properties>
 
     <dependencies>
@@ -34,6 +36,11 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>${netty.version}</version>
+        </dependency>
+        <!--redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <!--hutool工具集-->
         <dependency>
@@ -58,6 +65,12 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!--xml解析工具-->
+        <dependency>
+            <groupId>org.jdom</groupId>
+            <artifactId>jdom2</artifactId>
+            <version>${jdom2.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -69,10 +82,16 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.12</version>
+        </dependency>
 
     </dependencies>
 
     <build>
+        <finalName>websocketServer</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

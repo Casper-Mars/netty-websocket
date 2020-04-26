@@ -1,4 +1,4 @@
-package org.r.server.websocket.service;
+package org.r.server.websocket.camera.service;
 
 /**
  * @author casper
@@ -26,5 +26,16 @@ public interface CameraManagementService {
      */
     long stopLiveStream(long streamHandle);
 
+
+    /**
+     * 登录摄像头
+     *
+     * @param ip       摄像头ip
+     * @param port     摄像头端口，默认8091
+     * @param username 登录的用户名
+     * @param password 登录的密码
+     * @return 摄像头句柄, 登录成功返回非0正数，失败返回-1
+     */
+    long login(String ip, String port, String username, String password);
 
 }

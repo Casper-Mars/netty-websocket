@@ -1,6 +1,6 @@
-package org.r.server.websocket.dao;
+package org.r.server.websocket.camera.dao;
 
-import org.r.server.websocket.entity.TeachFaceMachine;
+import org.r.server.websocket.camera.entity.TeachFaceMachine;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

@@ -1,4 +1,4 @@
-package org.r.server.websocket.service;
+package org.r.server.websocket.camera.service;
 
 import org.r.server.websocket.pojo.bo.CameraInfoBo;
 import org.springframework.amqp.core.TopicExchange;
@@ -31,6 +31,15 @@ public interface CameraService {
      * @param cameraInfoBo 摄像机信息
      */
     void registryCameraStream(CameraInfoBo cameraInfoBo, TopicExchange exchange);
+
+
+    /**
+     * 登录摄像机
+     *
+     * @param id 摄像机id信息
+     * @return
+     */
+    CameraInfoBo loginCamera(Long id);
 
 
 }

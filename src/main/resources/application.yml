@@ -11,12 +11,40 @@ spring:
     url: jdbc:mysql://192.168.30.57:3306/power_grid_training_sys?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: root
+  redis:
+    database: 1
+    host: 192.168.123.60
+    port: 6379
+    password:
+    lettuce:
+      pool:
+        # 接池最大连接数（使用负值表示没有限制）
+        max-active: 8
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1ms
+        # 连接池中的最小空闲连接
+        max-idle: 8
+        # 连接池中的最大空闲连接
+        min-idle: 0
+    # 连接超时时间
+    timeout: 2000ms
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
 
+cache:
+  test:
+    expire-time: 1800
+    name: websocket
+  default:
+    expire-time: 2000
+
 camera-manager:
   ip: 192.168.123.60
   port: 18080
   dispatchStrategy: 1
+  threadPool:
+    corePoolSize: 10
+    maximumPoolSize: 20
+    keepAliveTime: 1

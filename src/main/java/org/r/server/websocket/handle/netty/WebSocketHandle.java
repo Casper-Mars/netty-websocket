@@ -1,4 +1,4 @@
-package org.r.server.websocket.handle;
+package org.r.server.websocket.handle.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -97,11 +97,11 @@ public class WebSocketHandle extends SimpleChannelInboundHandler<Object> {
     }
 
     private void handleWebSocketReq(ChannelHandlerContext ctx, WebSocketFrame o){
-        System.out.println("get msg");
         if(o instanceof TextWebSocketFrame){
             TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) o;
             ctx.channel().writeAndFlush(textWebSocketFrame.retain());
         }else if(o instanceof CloseWebSocketFrame){
+            System.out.println("web socket close");
             handshaker.close(ctx.channel(), (CloseWebSocketFrame) o.retain());
         }
     }

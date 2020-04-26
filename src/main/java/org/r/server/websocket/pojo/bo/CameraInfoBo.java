@@ -1,5 +1,7 @@
 package org.r.server.websocket.pojo.bo;
 
+import org.r.server.websocket.camera.entity.TeachFaceMachine;
+
 /**
  * date 2020/4/20 20:31
  *
@@ -84,4 +86,19 @@ public class CameraInfoBo {
     public void setStatue(int statue) {
         this.statue = statue;
     }
+
+    public static  CameraInfoBo build(TeachFaceMachine teachFaceMachine){
+
+        CameraInfoBo target = new CameraInfoBo();
+        target.setId((long) teachFaceMachine.getId());
+        target.setHandle(teachFaceMachine.getCameraHandle());
+        target.setIp(teachFaceMachine.getIp());
+        target.setUsername(teachFaceMachine.getCameraUsername());
+        target.setPassword(teachFaceMachine.getCameraPassword());
+        target.setStatue(teachFaceMachine.getCameraStatues());
+        return target;
+    }
+
+
+
 }

@@ -7,15 +7,10 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import org.r.server.websocket.handle.CameraRegistryHandle;
-import org.r.server.websocket.handle.HttpHandshakeHandle;
-import org.r.server.websocket.handle.WebSocketHandle;
-import org.r.server.websocket.handle.WebSocketServerHandler;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.r.server.websocket.handle.netty.CameraRegistryHandle;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

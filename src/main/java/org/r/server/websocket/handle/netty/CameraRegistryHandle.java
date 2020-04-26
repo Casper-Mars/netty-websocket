@@ -1,11 +1,11 @@
-package org.r.server.websocket.handle;
+package org.r.server.websocket.handle.netty;
 
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.FullHttpRequest;
 import org.r.server.websocket.listener.VideoDataDispatchListener;
 import org.r.server.websocket.pojo.bo.CameraInfoBo;
 import org.r.server.websocket.pool.TopicExchangePool;
-import org.r.server.websocket.service.CameraService;
+import org.r.server.websocket.camera.service.CameraService;
 import org.r.server.websocket.service.QueueService;
 import org.r.server.websocket.utils.SpringUtil;
 import org.springframework.amqp.core.TopicExchange;
@@ -50,7 +50,8 @@ public class CameraRegistryHandle extends WebSocketHandle {
         if (CollectionUtils.isEmpty(params)) {
             return;
         }
-        CameraInfoBo cameraInfoBo = cameraService.getCameraInfoById(Long.valueOf(params.get("id")));
+        /*登录设备*/
+        CameraInfoBo cameraInfoBo = cameraService.loginCamera(Long.valueOf(params.get("id")));
         if (cameraInfoBo == null) {
             return;
         }

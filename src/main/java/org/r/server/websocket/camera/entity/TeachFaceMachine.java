@@ -1,4 +1,4 @@
-package org.r.server.websocket.entity;
+package org.r.server.websocket.camera.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

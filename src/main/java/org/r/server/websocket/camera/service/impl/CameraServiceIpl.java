@@ -1,15 +1,17 @@
-package org.r.server.websocket.service.impl;
+package org.r.server.websocket.camera.service.impl;
 
-import org.r.server.websocket.dao.TeachFaceMachineDao;
-import org.r.server.websocket.entity.TeachFaceMachine;
+import org.r.server.websocket.camera.dao.TeachFaceMachineDao;
+import org.r.server.websocket.camera.entity.TeachFaceMachine;
+import org.r.server.websocket.camera.enums.CameraStatusEnum;
 import org.r.server.websocket.pojo.bo.CameraInfoBo;
 import org.r.server.websocket.pool.TopicExchangePool;
-import org.r.server.websocket.service.CameraManagementService;
-import org.r.server.websocket.service.CameraService;
+import org.r.server.websocket.camera.service.CameraManagementService;
+import org.r.server.websocket.camera.service.CameraService;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -31,6 +33,7 @@ public class CameraServiceIpl implements CameraService {
 
     /**
      * 根据id查询摄像机信息
+     * 如果摄像机没有登录，则先进行登录
      *
      * @param id 摄像机id
      * @return 摄像机信息
@@ -41,14 +44,7 @@ public class CameraServiceIpl implements CameraService {
         Optional<TeachFaceMachine> camera = teachFaceMachineDao.findById(id.intValue());
         if (camera.isPresent()) {
             TeachFaceMachine teachFaceMachine = camera.get();
-            CameraInfoBo target = new CameraInfoBo();
-            target.setId(id);
-            target.setHandle(teachFaceMachine.getCameraHandle());
-            target.setIp(teachFaceMachine.getIp());
-            target.setUsername(teachFaceMachine.getCameraUsername());
-            target.setPassword(teachFaceMachine.getCameraPassword());
-            target.setStatue(teachFaceMachine.getCameraStatues());
-            return target;
+            return CameraInfoBo.build(teachFaceMachine);
         } else {
             throw new RuntimeException("摄像机不存在");
         }
@@ -90,5 +86,35 @@ public class CameraServiceIpl implements CameraService {
             throw new RuntimeException("can not open live stream of camera:" + cameraInfoBo.getIp() + ",login first");
         }
         topicExchangePool.putHandle(l, exchange);
+    }
+
+    /**
+     * 登录摄像机
+     *
+     * @param id 摄像机id信息
+     * @return
+     */
+    @Override
+    public CameraInfoBo loginCamera(Long id) {
+        Optional<TeachFaceMachine> camera = teachFaceMachineDao.findById(id.intValue());
+        if(!camera.isPresent()){
+            throw new RuntimeException("摄像机不存在");
+        }
+        TeachFaceMachine faceMachine = camera.get();
+        if(faceMachine.getCameraStatues() == CameraStatusEnum.OFF.getCode()){
+            synchronized (this){
+                camera = teachFaceMachineDao.findById(id.intValue());
+                faceMachine = camera.get();
+                if(faceMachine.getCameraStatues() == CameraStatusEnum.OFF.getCode()){
+                    long handle = cameraManagementService.login(faceMachine.getIp(), "8091", faceMachine.getCameraUsername(), faceMachine.getCameraPassword());
+                    faceMachine.setCameraHandle(handle);
+                    faceMachine.setUpdateTime(new Date());
+                    faceMachine.setCameraStatues(CameraStatusEnum.ON.getCode());
+                    teachFaceMachineDao.save(faceMachine);
+                }
+            }
+        }
+
+        return CameraInfoBo.build(faceMachine);
     }
 }
