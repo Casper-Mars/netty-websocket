@@ -1,7 +1,9 @@
 package org.r.server.websocket.handle.netty;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.r.server.websocket.listener.VideoDataDispatchListener;
 import org.r.server.websocket.pojo.bo.CameraInfoBo;
 import org.r.server.websocket.pool.TopicExchangePool;
@@ -57,9 +59,11 @@ public class CameraRegistryHandle extends WebSocketHandle {
         }
         /*获取exchange*/
         TopicExchange exchange = getExchange(cameraInfoBo);
+        /*panelId 拼接一个随机数作为唯一的队列名称*/
+        String queueName = params.get("panelId")+"-"+System.currentTimeMillis();
+
         /*创建新的queue并绑定routingKey,然后添加监听器*/
-        String queueName = params.get("panelId");
-        queueService.bindNewQueueAndListen(queueName,exchange,new VideoDataDispatchListener(channel,queueName));
+        queueService.bindNewQueueAndListen(queueName, exchange, new VideoDataDispatchListener(channel, queueName));
     }
 
 
@@ -106,7 +110,10 @@ public class CameraRegistryHandle extends WebSocketHandle {
         return topicExchange;
     }
 
+    @Override
+    protected void closeWebSocket(ChannelHandlerContext ctx, WebSocketFrame o) {
+        super.closeWebSocket(ctx, o);
 
 
-
+    }
 }

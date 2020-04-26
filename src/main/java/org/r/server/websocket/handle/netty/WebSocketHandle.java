@@ -96,12 +96,17 @@ public class WebSocketHandle extends SimpleChannelInboundHandler<Object> {
 
     }
 
+    protected void closeWebSocket(ChannelHandlerContext ctx, WebSocketFrame o){
+
+    }
+
     private void handleWebSocketReq(ChannelHandlerContext ctx, WebSocketFrame o){
         if(o instanceof TextWebSocketFrame){
             TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) o;
             ctx.channel().writeAndFlush(textWebSocketFrame.retain());
         }else if(o instanceof CloseWebSocketFrame){
             System.out.println("web socket close");
+            closeWebSocket(ctx,o);
             handshaker.close(ctx.channel(), (CloseWebSocketFrame) o.retain());
         }
     }

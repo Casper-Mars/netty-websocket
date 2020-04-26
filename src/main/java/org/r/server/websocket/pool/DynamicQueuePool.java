@@ -1,5 +1,6 @@
 package org.r.server.websocket.pool;
 
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,24 +14,24 @@ import java.util.concurrent.ConcurrentMap;
 @Component
 public class DynamicQueuePool {
 
-    private final ConcurrentMap<String, Thread> queueThreadPool;
+    private final ConcurrentMap<String, SimpleMessageListenerContainer> queueThreadPool;
 
     public DynamicQueuePool() {
         queueThreadPool = new ConcurrentHashMap<>();
     }
 
-    public void put(String queueName, Thread thread) {
+    public void put(String queueName, SimpleMessageListenerContainer thread) {
         queueThreadPool.put(queueName, thread);
     }
 
-    public Thread get(String queueName) {
+    public SimpleMessageListenerContainer get(String queueName) {
         return queueThreadPool.get(queueName);
     }
 
     public void remove(String queueName) {
-        Thread thread = queueThreadPool.get(queueName);
-        if (thread != null && thread.isAlive()) {
-            thread.interrupt();
+        SimpleMessageListenerContainer thread = queueThreadPool.get(queueName);
+        if (thread != null && thread.isRunning()) {
+            thread.stop();
         }
     }
 

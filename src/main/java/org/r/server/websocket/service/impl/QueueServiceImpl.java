@@ -57,9 +57,8 @@ public class QueueServiceImpl implements QueueService {
             simpleMessageListenerContainer.setMessageListener(messageListenerAdapter);
             simpleMessageListenerContainer.setConcurrentConsumers(1);
             simpleMessageListenerContainer.setMaxConcurrentConsumers(1);
-            Thread listener = new Thread(simpleMessageListenerContainer::start, queueName);
-            dynamicQueuePool.put(queueName, listener);
-            listener.start();
+            dynamicQueuePool.put(queueName, simpleMessageListenerContainer);
+            simpleMessageListenerContainer.start();
         }
     }
 
