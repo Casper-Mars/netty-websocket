@@ -33,6 +33,7 @@ public class DynamicQueuePool {
         if (thread != null && thread.isRunning()) {
             thread.stop();
         }
+        queueThreadPool.remove(queueName);
     }
 
 }
