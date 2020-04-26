@@ -105,7 +105,7 @@ public class CameraManagementServiceImpl implements CameraManagementService {
     @Override
     public long login(String ip, String port, String username, String password) {
         if ("127.0.0.1".equals(ip)) {
-            throw new RuntimeException("ip 不能127.0.0.1");
+            throw new RuntimeException("ip 不能为127.0.0.1");
         }
         long handle = -1;
         String loginUri = "/login";
@@ -122,7 +122,7 @@ public class CameraManagementServiceImpl implements CameraManagementService {
         try {
             ApiResultDto resultDto = doGet(loginUri, params);
             if ("200".equals(resultDto.getCode())) {
-                handle = Long.valueOf(resultDto.getData());
+                handle = Long.parseLong(resultDto.getData());
             }
         } catch (Exception e) {
             e.printStackTrace();

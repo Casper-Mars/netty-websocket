@@ -32,6 +32,13 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 500
+          batch_versioned_data: true
+        order_inserts: true
+        order_updates: true
 
 cache:
   test:
@@ -48,3 +55,6 @@ camera-manager:
     corePoolSize: 10
     maximumPoolSize: 20
     keepAliveTime: 1
+  heart-beat:
+    delay: 30
+    duration: 60

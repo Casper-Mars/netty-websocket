@@ -4,6 +4,7 @@ import org.r.server.websocket.camera.dao.TeachFaceMachineDao;
 import org.r.server.websocket.camera.entity.TeachFaceMachine;
 import org.r.server.websocket.camera.enums.CameraStatusEnum;
 import org.r.server.websocket.pojo.bo.CameraInfoBo;
+import org.r.server.websocket.pool.OnLineCameraPool;
 import org.r.server.websocket.pool.TopicExchangePool;
 import org.r.server.websocket.camera.service.CameraManagementService;
 import org.r.server.websocket.camera.service.CameraService;
@@ -48,6 +49,27 @@ public class CameraServiceIpl implements CameraService {
         } else {
             throw new RuntimeException("摄像机不存在");
         }
+    }
+
+    /**
+     * 根据id查询摄像机信息
+     *
+     * @param id 摄像机id
+     * @return 摄像机信息
+     */
+    @Override
+    public TeachFaceMachine getFaceMachineById(Long id) {
+        OnLineCameraPool.lock.readLock().lock();
+        TeachFaceMachine result = null;
+        try {
+            Optional<TeachFaceMachine> faceMachine = teachFaceMachineDao.findById(id.intValue());
+            if (faceMachine.isPresent()) {
+                result = faceMachine.get();
+            }
+        } finally {
+            OnLineCameraPool.lock.readLock().unlock();
+        }
+        return result;
     }
 
     /**
@@ -96,16 +118,14 @@ public class CameraServiceIpl implements CameraService {
      */
     @Override
     public CameraInfoBo loginCamera(Long id) {
-        Optional<TeachFaceMachine> camera = teachFaceMachineDao.findById(id.intValue());
-        if(!camera.isPresent()){
+        TeachFaceMachine faceMachine = getFaceMachineById(id);
+        if (faceMachine == null) {
             throw new RuntimeException("摄像机不存在");
         }
-        TeachFaceMachine faceMachine = camera.get();
-        if(faceMachine.getCameraStatues() == CameraStatusEnum.OFF.getCode()){
-            synchronized (this){
-                camera = teachFaceMachineDao.findById(id.intValue());
-                faceMachine = camera.get();
-                if(faceMachine.getCameraStatues() == CameraStatusEnum.OFF.getCode()){
+        if (faceMachine.getCameraStatues() == CameraStatusEnum.OFF.getCode()) {
+            synchronized (this) {
+                faceMachine = getFaceMachineById(id);
+                if (faceMachine.getCameraStatues() == CameraStatusEnum.OFF.getCode()) {
                     long handle = cameraManagementService.login(faceMachine.getIp(), "8091", faceMachine.getCameraUsername(), faceMachine.getCameraPassword());
                     faceMachine.setCameraHandle(handle);
                     faceMachine.setUpdateTime(new Date());

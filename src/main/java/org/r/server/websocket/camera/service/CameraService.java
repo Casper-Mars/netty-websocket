@@ -1,5 +1,6 @@
 package org.r.server.websocket.camera.service;
 
+import org.r.server.websocket.camera.entity.TeachFaceMachine;
 import org.r.server.websocket.pojo.bo.CameraInfoBo;
 import org.springframework.amqp.core.TopicExchange;
 
@@ -17,6 +18,15 @@ public interface CameraService {
      * @return 摄像机信息
      */
     CameraInfoBo getCameraInfoById(Long id);
+
+    /**
+     * 根据id查询摄像机信息
+     *
+     * @param id 摄像机id
+     * @return 摄像机信息
+     */
+    TeachFaceMachine getFaceMachineById(Long id);
+
 
     /**
      * 注册摄像机
