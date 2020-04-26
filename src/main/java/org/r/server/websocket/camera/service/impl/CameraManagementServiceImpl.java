@@ -104,6 +104,9 @@ public class CameraManagementServiceImpl implements CameraManagementService {
      */
     @Override
     public long login(String ip, String port, String username, String password) {
+        if ("127.0.0.1".equals(ip)) {
+            throw new RuntimeException("ip 不能127.0.0.1");
+        }
         long handle = -1;
         String loginUri = "/login";
         /*username=admin&password=123456&ip=192.168.20.100&port=8091*/
