@@ -18,16 +18,16 @@ public class HeartBeatEventHandelNode extends AbstractStatuesEventHandleNode<Sta
 
     @Override
     public boolean needHandle(int nStatusCode) {
-        if (nStatusCode == EventStatusCode.EVENT_NVR_IPC_STATUS) {
-            return true;
-        }
-        return false;
+        return nStatusCode == EventStatusCode.EVENT_NVR_IPC_STATUS;
     }
 
     @Override
     public void handle0(StatusEventContext context, int errorCode, int actionCode) {
         long lUser = context.getIUser();
         System.out.println(String.format("get %d heart beat ", lUser));
-        onLineCameraPool.putTime(lUser, System.currentTimeMillis());
+        Long time = onLineCameraPool.getTime(lUser);
+        if (time != null) {
+            onLineCameraPool.putTime(lUser, System.currentTimeMillis());
+        }
     }
 }

@@ -3,11 +3,11 @@ package org.r.server.websocket.camera.service.impl;
 import org.r.server.websocket.camera.dao.TeachFaceMachineDao;
 import org.r.server.websocket.camera.entity.TeachFaceMachine;
 import org.r.server.websocket.camera.enums.CameraStatusEnum;
+import org.r.server.websocket.camera.service.CameraManagementService;
+import org.r.server.websocket.camera.service.CameraService;
 import org.r.server.websocket.pojo.bo.CameraInfoBo;
 import org.r.server.websocket.pool.OnLineCameraPool;
 import org.r.server.websocket.pool.TopicExchangePool;
-import org.r.server.websocket.camera.service.CameraManagementService;
-import org.r.server.websocket.camera.service.CameraService;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,8 @@ public class CameraServiceIpl implements CameraService {
     private TopicExchangePool topicExchangePool;
     @Autowired
     private TeachFaceMachineDao teachFaceMachineDao;
+    @Autowired
+    private OnLineCameraPool onLineCameraPool;
 
 
     /**
@@ -131,6 +133,7 @@ public class CameraServiceIpl implements CameraService {
                     faceMachine.setUpdateTime(new Date());
                     faceMachine.setCameraStatues(CameraStatusEnum.ON.getCode());
                     teachFaceMachineDao.save(faceMachine);
+                    onLineCameraPool.putTime(handle, System.currentTimeMillis());
                 }
             }
         }

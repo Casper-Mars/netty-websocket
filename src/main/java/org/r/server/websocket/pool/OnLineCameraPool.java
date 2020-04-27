@@ -1,6 +1,7 @@
 package org.r.server.websocket.pool;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,33 +19,42 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class OnLineCameraPool {
 
 
-    private final ConcurrentMap<Long,Long> heartBeatPool = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, Long> heartBeatPool = new ConcurrentHashMap<>();
 
     public static ReadWriteLock lock = new ReentrantReadWriteLock();
 
 
-    public Long getTime(Long handle){
+    public Long getTime(Long handle) {
         return heartBeatPool.get(handle);
     }
 
-    public void putTime(Long handle,Long time){
-        heartBeatPool.put(handle,time);
+    public void putTime(Long handle, Long time) {
+        heartBeatPool.put(handle, time);
     }
 
-    public List<Long> getHandelTimeOverThan(Long time){
+    public List<Long> getHandelTimeOverThan(Long time) {
         List<Long> result = new ArrayList<>();
         Long now = System.currentTimeMillis();
-        heartBeatPool.forEach((k,v)->{
-            if(now-v > time*1000){
+        heartBeatPool.forEach((k, v) -> {
+            if (now - v > time * 1000) {
                 result.add(k);
             }
         });
         return result;
     }
 
+    public void remove(Long handle) {
+        heartBeatPool.remove(handle);
+    }
 
+    public void removeBathc(List<Long> handles) {
 
+        if (CollectionUtils.isEmpty(handles)) {
+            return;
+        }
+        handles.forEach(heartBeatPool::remove);
 
+    }
 
 
 }

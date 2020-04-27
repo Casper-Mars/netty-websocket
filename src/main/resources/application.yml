@@ -56,5 +56,5 @@ camera-manager:
     maximumPoolSize: 20
     keepAliveTime: 1
   heart-beat:
-    delay: 30
-    duration: 60
+    delay: 5
+    duration: 2

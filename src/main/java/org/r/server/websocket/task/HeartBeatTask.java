@@ -7,6 +7,7 @@ import org.r.server.websocket.pool.OnLineCameraPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -31,6 +32,9 @@ public class HeartBeatTask implements Runnable {
     @Override
     public void run() {
         List<Long> lostCameraHandle = onLineCameraPool.getHandelTimeOverThan(duration);
+        if(CollectionUtils.isEmpty(lostCameraHandle)){
+            return;
+        }
         List<TeachFaceMachine> offlineCameras = teachFaceMachineDao.findByCameraHandleIn(lostCameraHandle);
         for (TeachFaceMachine offlineCamera : offlineCameras) {
             offlineCamera.setCameraStatues(CameraStatusEnum.OFF.getCode());
@@ -39,7 +43,10 @@ public class HeartBeatTask implements Runnable {
         }
         OnLineCameraPool.lock.writeLock().lock();
         try {
-            teachFaceMachineDao.saveAll(offlineCameras);
+            if(CollectionUtils.isEmpty(offlineCameras)){
+                teachFaceMachineDao.saveAll(offlineCameras);
+            }
+            onLineCameraPool.removeBathc(lostCameraHandle);
         } finally {
             OnLineCameraPool.lock.writeLock().unlock();
         }
